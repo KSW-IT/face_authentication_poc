@@ -1,0 +1,8 @@
+myenv/
+faces.db
+my_app.log
+temp/
+__pycache__/
+app/__pycache__/
+app/temp/
+
