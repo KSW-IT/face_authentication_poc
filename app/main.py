@@ -52,6 +52,7 @@ async def login(user: UserLogin):
         name = db_user[0][1]
         email = db_user[0][2]
         password = db_user[0][3]
+        embedding = db_user[0][4]
         create_timestamp = db_user[0][5]
         expire_timestamp = db_user[0][6]
         logging.info(f" {user_id}, {name}, {email}, {create_timestamp}, {expire_timestamp} ")
@@ -69,8 +70,16 @@ async def login(user: UserLogin):
              logging.info(f"Password expired.") 
              return JSONResponse(content={"message": "Password expired. Please reset password.","code":"3"})
             else:
-             logging.info(f"Successfully login") 
-             return JSONResponse(content={"message": "Login successfull","code":"1"})
+             if embedding == None:
+                 logging.info(f"Face is not registered")
+                 return JSONResponse(content={"message": "Face is not registered","code":"4"})
+             else:
+                  logging.info(f"Successfully login") 
+                  return JSONResponse(content={"message": "Login successfull","code":"1"})
+             #return JSONResponse(content={"message": "Login successfull","code":"1"})
+                 
+                 
+            
 
 
         else:
@@ -130,7 +139,7 @@ async def register(name: str =Form(...), email: str=Form(...), file: UploadFile 
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/register2")
-async def register2(email: str=Form(...), file: UploadFile = File(...)):
+async def register2(email: str=Form(...), password: str=Form(...),file: UploadFile = File(...)):
     logging.info("Calling register") 
     try:
         # Save the uploaded file temporarily
@@ -148,17 +157,23 @@ async def register2(email: str=Form(...), file: UploadFile = File(...)):
         #logging.info(f" no of same users according embedding {nos}")
         
         if nos >0 :
-            embeddedFromdb =users[0][4] 
+            embeddedFromdb = users[0][4] 
+            dbPassword = users[0][3] 
 
-            if embeddedFromdb == None: # for time being lets register only the user who is not create face embedded
-                logging.info(f" No face is registered yet. So new face registration accepted") 
-                save_user2(email, embedding)
-                return JSONResponse(content={"message": "Face is registered succesfully","code":"1"})
+            if(dbPassword==password):
 
+
+                if embeddedFromdb == None: # for time being lets register only the user who is not create face embedded
+                    logging.info(f" No face is registered yet. So new face registration accepted") 
+                    save_user2(email, embedding)
+                    return JSONResponse(content={"message": "Face is registered succesfully","code":"1"})
+
+                else:
+                    logging.info(f" Face is already registered. Do you want to login face id or reset face id") 
+                    
+                    return JSONResponse(content={"message": "Face is already registered. Do you want to login face id or reset face id","code":"3"})
             else:
-                logging.info(f" Face is already registered. Re-register face is not allowed right now") 
-                
-                return JSONResponse(content={"message": "Face is already registered. Re-register face is not allowed right now","code":"2"})
+                JSONResponse(content={"message": "Incorrect password","code":"2"})
 
             
            

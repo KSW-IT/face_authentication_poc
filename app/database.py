@@ -16,7 +16,7 @@ def init_db():
                 password TEXT NOT NULL,
                 embedding BLOB  NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                pass_expiry DATETIME NOT NULL
+                pass_expiry DATETIME NOT NULL 
             )
         ''')
         conn.commit()
@@ -42,7 +42,8 @@ def save_user2(email, embedding):# this function is new function to update face 
         
         conn.commit()
 def create_user(name,email,password):
-    password_expiry = (datetime.utcnow() + timedelta(minutes=2)).strftime('%Y-%m-%d %H:%M:%S')
+    password_expiry = (datetime.now() + timedelta(minutes=2)).strftime('%Y-%m-%d %H:%M:%S')
+   # password_expiry = (datetime.utcnow() + timedelta(minutes=2)).strftime('%Y-%m-%d %H:%M:%S')
     with sqlite3.connect(DATABASE) as conn:
         conn.execute("INSERT INTO users (name, email, password,pass_expiry) VALUES (?, ?, ?, ?)", (name, email,password,password_expiry))
 
