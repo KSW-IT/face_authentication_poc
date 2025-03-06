@@ -1,0 +1,9 @@
+conda env list
+
+ C:\Users\Burn\anaconda3\envs\deepface_env
+
+  C:\Users\Burn\Desktop\FaceFromGIT\face_authentication_poc
+
+ conda activate deepface_env
+
+ uvicorn app.main:app --reload

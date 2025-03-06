@@ -18,3 +18,6 @@ class ChangePassword(BaseModel):
     email: str
     currentPassword: str
     newPassword: str
+class Response(BaseModel):
+    code: str
+    message: str

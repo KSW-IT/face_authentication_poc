@@ -11,16 +11,12 @@ def init_db():
         conn.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
                 email TEXT NOT NULL,
-                password TEXT NOT NULL,
-                embedding BLOB  NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                pass_expiry DATETIME NOT NULL 
+                embedding BLOB  NULL
             )
         ''')
         conn.commit()
-
+#Deprecated
 def save_user(name, email, embedding):
     with sqlite3.connect(DATABASE) as conn:
         conn.execute("INSERT INTO users (name, email, embedding) VALUES (?, ?, ?)", (name, email,str(embedding)))
@@ -36,21 +32,23 @@ def save_user2(email, embedding):# this function is new function to update face 
         
         if existing_user:
             # Update the existing user's embedding
-            cursor.execute("UPDATE users SET embedding = ? WHERE email = ?", ( str(embedding),email))
+            cursor.execute("UPDATE users SET embedding = ? WHERE email = ?", ( email,str(embedding)))
+            logging.info("Face is updated in the existing user")
         else:
-           logging.info(f" NO user found") 
-        
+            cursor.execute("INSERT INTO users (email, embedding) VALUES (?, ?)", (email,str(embedding) ))
+            logging.info("New user has created and face is registered")
         conn.commit()
+#deprecated
 def create_user(name,email,password):
     password_expiry = (datetime.now() + timedelta(minutes=2)).strftime('%Y-%m-%d %H:%M:%S')
    # password_expiry = (datetime.utcnow() + timedelta(minutes=2)).strftime('%Y-%m-%d %H:%M:%S')
     with sqlite3.connect(DATABASE) as conn:
         conn.execute("INSERT INTO users (name, email, password,pass_expiry) VALUES (?, ?, ?, ?)", (name, email,password,password_expiry))
-
+#deprecated
 def get_all_users():
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT id, name ,email, embedding FROM users")
+        cursor.execute("SELECT id, email, embedding FROM users")
         return cursor.fetchall()
 def get_user(email):
     with sqlite3.connect(DATABASE) as conn:
@@ -62,7 +60,7 @@ def get_user(email):
 def get_user2(email):
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT id, name, email,  password , embedding,created_at, pass_expiry FROM users where email = ?",(email,))
+        cursor.execute("SELECT id, email , embedding FROM users where email = ?",(email,))
         
         #logging.info(f" user from getUser(email): {cursor.fetchall()}") 
         return cursor.fetchall()
